@@ -23,13 +23,19 @@ public_users.get('/isbn/:isbn',function (req, res) {
 });
   
 // Get book details based on author
-public_users.get('/author/:author',function (req, res) => {
-    // Extract the author parameter from the request URL
-    const author = req.params.author;
-    // Filter the users array to find author matches the extracted author parameter
-    let filtered_books = books.filter((books) => books.author === author);
-    // Send the filtered_users array as the response to the client
-    res.send(filtered_books);    
+public_users.get('/author/:author', function (req, res) {
+    const authorParam = req.params.author.toLowerCase();
+
+    // books es un objeto con ISBN como claves; usamos Object.entries para filtrar
+    const filtered_books = Object.entries(books)
+      .filter(([isbn, book]) => book.author && book.author.toLowerCase().includes(authorParam))
+      .map(([isbn, book]) => ({ isbn, ...book }));
+
+    if (filtered_books.length === 0) {
+      return res.status(404).json({ message: "No se encontraron libros para ese autor" });
+    }
+
+    return res.json(filtered_books);
 });
 
 // Get all books based on title
