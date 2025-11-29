@@ -11,7 +11,7 @@ public_users.post("/register", (req,res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/books',function (req, res) {
+public_users.get('/',function (req, res) {
   res.send(JSON.stringify(books,null,4));
 });
 
@@ -56,8 +56,16 @@ public_users.get('/title/:title',function (req, res) {
 
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const isbn = req.params.isbn;
+    const book = books[isbn];
+
+    if (!book) {
+        return res.status(404).json({ message: "No se encontró el review con ese ISBN" });
+    }
+
+    // Devuelve las reseñas del libro (objeto vacío si no hay reseñas)
+    const reviews = book.reviews || {};
+    return res.json(reviews);
 });
 
 module.exports.general = public_users;
