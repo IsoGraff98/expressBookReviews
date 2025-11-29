@@ -40,8 +40,18 @@ public_users.get('/author/:author', function (req, res) {
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    const titleParam = req.params.title.toLowerCase();
+
+    // books es un objeto con ISBN como claves; usamos Object.entries para filtrar
+    const filtered_title = Object.entries(books)
+      .filter(([isbn, book]) => book.title && book.title.toLowerCase().includes(titleParam))
+      .map(([isbn, book]) => ({ isbn, ...book }));
+
+    if (filtered_title.length === 0) {
+      return res.status(404).json({ message: "No se encontraron libros con este titulo" });
+    }
+
+    return res.json(filtered_title);
 });
 
 //  Get book review
