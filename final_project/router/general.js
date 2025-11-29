@@ -23,10 +23,13 @@ public_users.get('/isbn/:isbn',function (req, res) {
 });
   
 // Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-    // Retrieve the autor parameter from the request URL and send the corresponding friend's details
+public_users.get('/author/:author',function (req, res) => {
+    // Extract the author parameter from the request URL
     const author = req.params.author;
-    res.send(books[author]);
+    // Filter the users array to find author matches the extracted author parameter
+    let filtered_books = books.filter((books) => books.author === author);
+    // Send the filtered_users array as the response to the client
+    res.send(filtered_books);    
 });
 
 // Get all books based on title
