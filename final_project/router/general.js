@@ -1,4 +1,5 @@
 const express = require('express');
+const axios = require('axios');
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
@@ -32,11 +33,64 @@ public_users.get('/',function (req, res) {
   res.send(JSON.stringify(books,null,4));
 });
 
+// Get the book list using axios + Promise callbacks
+public_users.get('/promise', function (req, res) {
+  const baseUrl = req.protocol + '://' + req.get('host');
+  const url = `${baseUrl}/`;
+  axios.get(url)
+    .then(response => res.json(response.data))
+    .catch(error => {
+      console.error('Error fetching books via axios (Promise):', error.message || error);
+      return res.status(500).json({ message: 'Error fetching book list (Promise)', error: error.message });
+    });
+});
+
+// Get the book list using axios + async/await
+public_users.get('/async', async function (req, res) {
+  try {
+    const baseUrl = req.protocol + '://' + req.get('host');
+    const url = `${baseUrl}/`;
+    const response = await axios.get(url);
+    return res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching books via axios (async):', error.message || error);
+    return res.status(500).json({ message: 'Error fetching book list (async)', error: error.message });
+  }
+});
+
+
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
     // Retrieve the ISBN parameter from the request URL and send the corresponding friend's details
     const isbn = req.params.isbn;
     res.send(books[isbn]);
+});
+
+// Get book details by ISBN using axios + Promise callbacks
+public_users.get('/promise/isbn/:isbn', function (req, res) {
+  const isbn = encodeURIComponent(req.params.isbn);
+  const baseUrl = req.protocol + '://' + req.get('host');
+  const url = `${baseUrl}/isbn/${isbn}`;
+  axios.get(url)
+    .then(response => res.json(response.data))
+    .catch(error => {
+      console.error('Error fetching book by ISBN via axios (Promise):', error.message || error);
+      return res.status(500).json({ message: 'Error fetching book by ISBN (Promise)', error: error.message });
+    });
+});
+
+// Get book details by ISBN using axios + async/await
+public_users.get('/async/isbn/:isbn', async function (req, res) {
+  try {
+    const isbn = encodeURIComponent(req.params.isbn);
+    const baseUrl = req.protocol + '://' + req.get('host');
+    const url = `${baseUrl}/isbn/${isbn}`;
+    const response = await axios.get(url);
+    return res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching book by ISBN via axios (async):', error.message || error);
+    return res.status(500).json({ message: 'Error fetching book by ISBN (async)', error: error.message });
+  }
 });
   
 // Get book details based on author
@@ -53,6 +107,33 @@ public_users.get('/author/:author', function (req, res) {
     }
 
     return res.json(filtered_books);
+});
+
+// Get books by author using axios + Promise callbacks
+public_users.get('/promise/author/:author', function (req, res) {
+  const author = encodeURIComponent(req.params.author);
+  const baseUrl = req.protocol + '://' + req.get('host');
+  const url = `${baseUrl}/author/${author}`;
+  axios.get(url)
+    .then(response => res.json(response.data))
+    .catch(error => {
+      console.error('Error fetching books by author via axios (Promise):', error.message || error);
+      return res.status(500).json({ message: 'Error fetching books by author (Promise)', error: error.message });
+    });
+});
+
+// Get books by author using axios + async/await
+public_users.get('/async/author/:author', async function (req, res) {
+  try {
+    const author = encodeURIComponent(req.params.author);
+    const baseUrl = req.protocol + '://' + req.get('host');
+    const url = `${baseUrl}/author/${author}`;
+    const response = await axios.get(url);
+    return res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching books by author via axios (async):', error.message || error);
+    return res.status(500).json({ message: 'Error fetching books by author (async)', error: error.message });
+  }
 });
 
 // Get all books based on title
