@@ -152,6 +152,33 @@ public_users.get('/title/:title',function (req, res) {
     return res.json(filtered_title);
 });
 
+// Get books by title using axios + Promise callbacks
+public_users.get('/promise/title/:title', function (req, res) {
+  const title = encodeURIComponent(req.params.title);
+  const baseUrl = req.protocol + '://' + req.get('host');
+  const url = `${baseUrl}/title/${title}`;
+  axios.get(url)
+    .then(response => res.json(response.data))
+    .catch(error => {
+      console.error('Error fetching books by title via axios (Promise):', error.message || error);
+      return res.status(500).json({ message: 'Error fetching books by title (Promise)', error: error.message });
+    });
+});
+
+// Get books by title using axios + async/await
+public_users.get('/async/title/:title', async function (req, res) {
+  try {
+    const title = encodeURIComponent(req.params.title);
+    const baseUrl = req.protocol + '://' + req.get('host');
+    const url = `${baseUrl}/title/${title}`;
+    const response = await axios.get(url);
+    return res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching books by title via axios (async):', error.message || error);
+    return res.status(500).json({ message: 'Error fetching books by title (async)', error: error.message });
+  }
+});
+
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
     const isbn = req.params.isbn;
