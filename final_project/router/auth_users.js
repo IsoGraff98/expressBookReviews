@@ -69,8 +69,43 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    // Add or modify a book review by an authenticated user
+    const isbn = req.params.isbn;
+    const review = req.query.review || req.body.review; // review provided as a query string or request body
+    const username = req.session && req.session.authorization && req.session.authorization.username;
+
+    // Validate inputs
+    if (!username) {
+        return res.status(403).json({ message: "User not logged in" });
+    }
+
+    if (!isbn) {
+        return res.status(400).json({ message: "ISBN is required" });
+    }
+
+    if (!review) {
+        return res.status(400).json({ message: "Review text is required (provide as query parameter 'review')" });
+    }
+
+    const book = books[isbn];
+    if (!book) {
+        return res.status(404).json({ message: "Book not found with the provided ISBN" });
+    }
+
+    // Initialize reviews object if not present
+    if (!book.reviews) {
+        book.reviews = {};
+    }
+
+    // Add or update review by this username
+    const alreadyReviewed = Object.prototype.hasOwnProperty.call(book.reviews, username);
+    book.reviews[username] = review;
+
+    if (alreadyReviewed) {
+        return res.status(200).json({ message: "Review modified successfully", reviews: book.reviews });
+    } else {
+        return res.status(201).json({ message: "Review added successfully", reviews: book.reviews });
+    }
 });
 
 
